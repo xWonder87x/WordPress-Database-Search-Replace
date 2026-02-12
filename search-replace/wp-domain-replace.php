@@ -10,7 +10,8 @@
  *   php wp-domain-replace.php --old=olddomain.com --new=newdomain.com
  *   php wp-domain-replace.php --dry-run
  *
- * Place this file in your WordPress root directory or set WP_PATH.
+ * Place this file in your WordPress root directory or set --wp-path.
+ * When in search-replace/ folder, default is parent directory.
  */
 
 $options = getopt('', ['old:', 'new:', 'dry-run', 'wp-path:', 'help', 'skip-tables:']);
@@ -26,7 +27,7 @@ Options:
   --old=DOMAIN       Old domain to search for (e.g., oldsite.com)
   --new=DOMAIN       New domain to replace with (e.g., newsite.com)
   --dry-run          Preview changes without modifying the database
-  --wp-path=PATH     Path to WordPress root (default: current directory)
+  --wp-path=PATH     Path to WordPress root (default: parent of script directory)
   --skip-tables=     Comma-separated list of tables to skip (optional)
   --help             Show this help
 
@@ -39,8 +40,15 @@ HELP;
     exit(0);
 }
 
-// Configuration
-$wpPath = isset($options['wp-path']) ? rtrim($options['wp-path'], '/\\') : __DIR__;
+// Configuration - default to parent dir when script is in search-replace/ subfolder
+$wpPath = isset($options['wp-path']) ? rtrim($options['wp-path'], '/\\') : null;
+if ($wpPath === null) {
+    $wpPath = dirname(__DIR__);
+    $wpConfigPath = $wpPath . DIRECTORY_SEPARATOR . 'wp-config.php';
+    if (!file_exists($wpConfigPath)) {
+        $wpPath = dirname(__DIR__, 2);
+    }
+}
 $dryRun = isset($options['dry-run']);
 $oldDomain = $options['old'] ?? null;
 $newDomain = $options['new'] ?? null;

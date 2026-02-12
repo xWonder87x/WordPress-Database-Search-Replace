@@ -19,8 +19,8 @@ A PHP tool that safely updates the domain name throughout a WordPress database. 
 
 ### Option A: Browser (upload folder)
 
-1. Upload the entire folder to your WordPress site (e.g. as `search-replace` subfolder)
-2. Edit `config.php` and set a unique `SECRET_KEY` (e.g. `'my-secret-password-123'`)
+1. Download the repo and extract it. **Upload only the `search-replace` folder** to your WordPress site (e.g. as `search-replace` subfolder)
+2. Edit `config.php` and set a unique `SECRET_KEY` (default is `my-secret-key`)
 3. Visit `https://yoursite.com/search-replace/` in your browser
 4. Enter the secret key to access the tool
 5. **Delete the folder after use** for security
@@ -28,7 +28,8 @@ A PHP tool that safely updates the domain name throughout a WordPress database. 
 ### Option B: Command line
 
 1. Copy `wp-domain-replace.php` to your WordPress root directory, or
-2. Place it anywhere and use `--wp-path` to point to your WordPress folder
+2. Run from the search-replace folder: `php wp-domain-replace.php` (uses parent dir for wp-config), or
+3. Use `--wp-path` to point to your WordPress folder
 
 ## Usage
 
@@ -63,7 +64,7 @@ php wp-domain-replace.php --wp-path=/path/to/wordpress --old=localhost --new=exa
 | `--old=DOMAIN` | Domain to find (e.g., `oldsite.com` or `localhost/wp`) |
 | `--new=DOMAIN` | Domain to replace with |
 | `--dry-run` | Preview changes without modifying the database |
-| `--wp-path=PATH` | Path to WordPress root (default: script directory) |
+| `--wp-path=PATH` | Path to WordPress root (default: parent of script directory) |
 | `--skip-tables=` | Comma-separated list of tables to skip |
 | `--help` | Show usage help |
 
@@ -86,7 +87,7 @@ The script searches and replaces across all database tables, including:
 ## Example workflow (browser)
 
 1. Backup your database
-2. Upload folder to `yoursite.com/search-replace/`
+2. Upload the `search-replace` folder to `yoursite.com/search-replace/`
 3. Set `SECRET_KEY` in `config.php`
 4. Visit the URL, enter your key
 5. Enter old/new domains, keep "Dry run" checked, click Run
@@ -96,6 +97,7 @@ The script searches and replaces across all database tables, including:
 ## Example workflow (CLI)
 
 ```bash
+# From the search-replace folder (inside your WordPress root or with --wp-path):
 # 1. Backup your database first!
 # 2. Run a dry run to preview
 php wp-domain-replace.php --old=staging.mysite.com --new=mysite.com --dry-run

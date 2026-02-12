@@ -7,4 +7,4 @@
 
 // Change this to a random string - you'll need it to access the tool
 // Example: 'my-secret-key-xyz123' or use: bin2hex(random_bytes(16))
-define('SECRET_KEY', 'interface');
+define('SECRET_KEY', 'my-secret-key');

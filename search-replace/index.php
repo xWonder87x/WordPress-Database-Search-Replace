@@ -11,8 +11,8 @@ session_start();
 require_once __DIR__ . '/config.php';
 
 // Check if secret key is still default
-if (SECRET_KEY === 'interface') {
-    die('<h1>Setup Required</h1><p>Edit <strong>config.php</strong> and set a unique SECRET_KEY before using this tool.</p>');
+if (SECRET_KEY === 'my-secret-key') {
+    die('<h1>Setup Required</h1><p>Edit <strong>config.php</strong> and set a unique SECRET_KEY before using this tool.</p><p style="margin-top:2rem;padding-top:1rem;text-align:center;font-size:0.8rem;color:#666">Made by <a href="https://webpartner.gr" target="_blank" rel="noopener">Webpartner.gr</a></p>');
 }
 
 // Authentication
@@ -48,6 +48,9 @@ if (!$loggedIn) {
             button { width: 100%; padding: 12px; background: #2271b1; color: white; border: none; cursor: pointer; font-size: 1rem; }
             button:hover { background: #135e96; }
             .error { color: #b32d2e; margin-bottom: 10px; }
+            .footer-credit { margin-top: 2rem; padding-top: 1rem; text-align: center; font-size: 0.8rem; color: #666; }
+            .footer-credit a { color: #2271b1; text-decoration: none; }
+            .footer-credit a:hover { text-decoration: underline; }
         </style>
     </head>
     <body>
@@ -58,10 +61,19 @@ if (!$loggedIn) {
             <input type="password" name="key" id="key" required autofocus>
             <button type="submit">Continue</button>
         </form>
+        <p class="footer-credit">Made by <a href="https://webpartner.gr" target="_blank" rel="noopener">Webpartner.gr</a></p>
     </body>
     </html>
     <?php
     exit;
+}
+
+function defaultWpPath() {
+    $wpPath = dirname(__DIR__);
+    if (file_exists($wpPath . DIRECTORY_SEPARATOR . 'wp-config.php')) {
+        return $wpPath;
+    }
+    return dirname(__DIR__, 2);
 }
 
 // Process form submission
@@ -82,7 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['old_domain']) && isse
 }
 
 function runReplace($oldDomain, $newDomain, $dryRun) {
-    $wpPath = isset($_POST['wp_path']) ? rtrim($_POST['wp_path'], '/\\') : dirname(__DIR__);
+    $wpPath = isset($_POST['wp_path']) ? rtrim($_POST['wp_path'], '/\\') : null;
+    if ($wpPath === null) {
+        $wpPath = dirname(__DIR__);
+        $wpConfigPath = $wpPath . DIRECTORY_SEPARATOR . 'wp-config.php';
+        if (!file_exists($wpConfigPath)) {
+            $wpPath = dirname(__DIR__, 2);
+        }
+    }
     $wpConfigPath = $wpPath . DIRECTORY_SEPARATOR . 'wp-config.php';
 
     if (!file_exists($wpConfigPath)) {
@@ -265,6 +284,9 @@ function isSerialized($value) {
         .output .dry-run-note { color: #d63638; margin-top: 8px; }
         .output .table-row { padding: 2px 0; }
         .warning { background: #fcf0f1; border-left: 4px solid #d63638; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; }
+        .footer-credit { margin-top: 2rem; padding-top: 1rem; text-align: center; font-size: 0.8rem; color: #666; }
+        .footer-credit a { color: #2271b1; text-decoration: none; }
+        .footer-credit a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -284,7 +306,7 @@ function isSerialized($value) {
         <input type="text" name="new_domain" id="new_domain" placeholder="e.g. example.com" value="<?= htmlspecialchars($_POST['new_domain'] ?? '') ?>" required>
 
         <label for="wp_path">WordPress path (optional)</label>
-        <input type="text" name="wp_path" id="wp_path" placeholder="Auto-detected: parent of this folder" value="<?= htmlspecialchars($_POST['wp_path'] ?? dirname(__DIR__)) ?>">
+        <input type="text" name="wp_path" id="wp_path" placeholder="Auto-detected: parent of this folder" value="<?= htmlspecialchars($_POST['wp_path'] ?? defaultWpPath()) ?>">
 
         <div class="checkbox">
             <input type="checkbox" name="dry_run" id="dry_run" value="1" <?= ($_POST['dry_run'] ?? true) ? 'checked' : '' ?>>
@@ -297,5 +319,6 @@ function isSerialized($value) {
     <?php if ($ran && $output): ?>
     <div class="output"><?= $output ?></div>
     <?php endif; ?>
+    <p class="footer-credit">Made by <a href="https://webpartner.gr" target="_blank" rel="noopener">Webpartner.gr</a></p>
 </body>
 </html>
